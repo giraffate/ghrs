@@ -1,4 +1,4 @@
-use ghrs::{Client, EventType, Payload};
+use ghrs::{model::EventType, model::Payload, Client};
 
 use ureq::Error;
 
