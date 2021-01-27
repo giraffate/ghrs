@@ -1,20 +1,6 @@
 use ghrs::{model::EventType, model::Payload, Client};
 
-use ureq::Error;
-
-fn main() {
-    match run() {
-        Ok(_) => {}
-        Err(Error::Status(_code, status)) => {
-            println!("Request failed: {:?}", status);
-        }
-        Err(Error::Transport(transport)) => {
-            println!("{}", transport);
-        }
-    }
-}
-
-fn run() -> Result<(), ureq::Error> {
+fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     let events = Client::activity().events().list_user_events("giraffate")?;
 
     let mut issues_events = Vec::new();
@@ -78,5 +64,6 @@ fn run() -> Result<(), ureq::Error> {
             );
         }
     }
+    println!("");
     Ok(())
 }
