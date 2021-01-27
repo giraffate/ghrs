@@ -49,6 +49,20 @@ impl PullsHandler {
         Ok(pull_requests)
     }
 
+    pub fn get(&self, pull_number: u64) -> Result<PullRequest, ureq::Error> {
+        let mut request = ureq::get(&format!(
+            "https://api.github.com/repos/{}/{}/pulls/{}",
+            self.owner, self.repo, pull_number
+        ));
+
+        if let Some(accept) = self.accept.clone() {
+            request = request.set("Accept", &accept);
+        }
+
+        let pull_request: PullRequest = request.call()?.into_json()?;
+        Ok(pull_request)
+    }
+
     pub fn accept(mut self, accept: impl Into<String>) -> Self {
         self.accept = Some(accept.into());
         self
