@@ -1,7 +1,27 @@
 use ghrs::{model::EventType, model::Payload, Client};
 
+use chrono::NaiveDate;
+
 fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
-    let events = Client::activity().events().list_user_events("giraffate")?;
+    let args: Vec<String> = std::env::args().collect();
+    let user = args.get(1).unwrap();
+    let from = if args.get(2).is_some() {
+        let from = args.get(2).unwrap();
+        Some(NaiveDate::parse_from_str(from, "%Y-%m-%d")?)
+    } else {
+        None
+    };
+    let to = if args.get(3).is_some() {
+        let to = args.get(3).unwrap();
+        Some(NaiveDate::parse_from_str(to, "%Y-%m-%d")?)
+    } else {
+        None
+    };
+
+    let events = Client::activity()
+        .events()
+        .per_page(100)
+        .list_user_events(user)?;
 
     let mut issues_events = Vec::new();
     let mut pull_request_events = Vec::new();
@@ -9,6 +29,16 @@ fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     let mut issue_comment_events = Vec::new();
     let mut commit_comment_events = Vec::new();
     for event in events.into_iter() {
+        if let Some(from) = from {
+            if event.created_at.naive_utc().date() < from {
+                continue;
+            }
+        }
+        if let Some(to) = to {
+            if to < event.created_at.naive_utc().date() {
+                continue;
+            }
+        }
         match event.r#type {
             EventType::IssuesEvent => issues_events.push(event),
             EventType::PullRequestEvent => pull_request_events.push(event),

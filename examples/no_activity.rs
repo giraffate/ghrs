@@ -3,7 +3,11 @@ use ghrs::Client;
 use chrono::{Duration, Utc};
 
 fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
-    let pull_requests = Client::pulls("rust-lang", "rust-clippy").list()?;
+    let args: Vec<String> = std::env::args().collect();
+    let owner = args.get(1).unwrap();
+    let repo = args.get(2).unwrap();
+
+    let pull_requests = Client::pulls(owner, repo).per_page(100).list()?;
 
     let earlier_than = Utc::now() - Duration::days(14);
     let pull_requests = pull_requests
