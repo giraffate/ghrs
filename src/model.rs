@@ -280,16 +280,11 @@ pub struct Issue {
     pub state: String,
     pub title: String,
     pub body: String,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub body_text: Option<String>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub body_html: Option<String>,
     pub user: User,
     pub labels: Vec<Label>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub assignee: Option<User>,
     pub assignees: Vec<User>,
-    pub author_association: String,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub milestone: Option<Milestone>,
     pub locked: bool,
@@ -303,6 +298,9 @@ pub struct Issue {
     pub created_at: DateTime<Utc>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub updated_at: Option<DateTime<Utc>>,
+    // TODO
+    // pub repository: Repository,
+    pub author_association: String,
 }
 
 #[derive(Debug, Deserialize)]
