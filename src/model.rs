@@ -23,6 +23,7 @@ pub struct PullRequest {
     pub assignee: Option<User>,
     pub assignees: Vec<User>,
     pub requested_reviewers: Vec<User>,
+    // TODO
     // pub requested_teams: ,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub milestone: Option<Milestone>,
@@ -38,6 +39,7 @@ pub struct PullRequest {
     pub merged_at: Option<DateTime<Utc>>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub merge_commit_sha: Option<String>,
+    // TODO
     // head:,
     // base:,
     // links:,

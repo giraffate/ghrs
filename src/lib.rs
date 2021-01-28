@@ -15,11 +15,18 @@ impl Client {
         }
     }
 
-    pub fn activity() -> ActivityHandler {
-        ActivityHandler {}
+    pub fn events() -> EventHandler {
+        EventHandler {
+            accept: None,
+            per_page: None,
+            page: None,
+        }
     }
 }
 
+/// A client for the Pull Request API.
+///
+/// See <https://docs.github.com/en/rest/reference/pulls>.
 pub struct PullsHandler {
     owner: String,
     repo: String,
@@ -29,6 +36,12 @@ pub struct PullsHandler {
 }
 
 impl PullsHandler {
+    /// List pull requests.
+    ///
+    /// See <https://docs.github.com/en/rest/reference/pulls#list-pull-requests>.
+    /// ```no_run
+    /// let pull_requests = ghrs::Client::pulls("owner", "repo").list();
+    /// ```
     pub fn list(&self) -> Result<Vec<PullRequest>, ureq::Error> {
         let mut request = ureq::get(&format!(
             "https://api.github.com/repos/{}/{}/pulls",
@@ -49,6 +62,12 @@ impl PullsHandler {
         Ok(pull_requests)
     }
 
+    /// Get a pull request.
+    ///
+    /// See <https://docs.github.com/en/rest/reference/pulls#get-a-pull-request>.
+    /// ```no_run
+    /// let pull_request = ghrs::Client::pulls("owner", "repo").get(1234);
+    /// ```
     pub fn get(&self, pull_number: u64) -> Result<PullRequest, ureq::Error> {
         let mut request = ureq::get(&format!(
             "https://api.github.com/repos/{}/{}/pulls/{}",
@@ -79,18 +98,9 @@ impl PullsHandler {
     }
 }
 
-pub struct ActivityHandler;
-
-impl ActivityHandler {
-    pub fn events(&self) -> EventHandler {
-        EventHandler {
-            accept: None,
-            per_page: None,
-            page: None,
-        }
-    }
-}
-
+/// A client for the Event API.
+///
+/// See <https://docs.github.com/en/rest/reference/activity#events>.
 pub struct EventHandler {
     accept: Option<String>,
     per_page: Option<u8>,
@@ -98,6 +108,12 @@ pub struct EventHandler {
 }
 
 impl EventHandler {
+    /// List events for the authenticated user.
+    ///
+    /// See <https://docs.github.com/en/rest/reference/activity#list-events-for-the-authenticated-user>.
+    /// ```no_run
+    /// let events = ghrs::Client::events().list_user_events("user");
+    /// ```
     pub fn list_user_events(&self, user: impl Into<String>) -> Result<Vec<Event>, ureq::Error> {
         let mut request = ureq::get(&format!(
             "https://api.github.com/users/{}/events",
