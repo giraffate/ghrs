@@ -6,21 +6,11 @@ pub struct Client;
 
 impl Client {
     pub fn pulls(owner: impl Into<String>, repo: impl Into<String>) -> PullsHandler {
-        PullsHandler {
-            owner: owner.into(),
-            repo: repo.into(),
-            accept: None,
-            per_page: None,
-            page: None,
-        }
+        PullsHandler::new(owner, repo)
     }
 
     pub fn events() -> EventHandler {
-        EventHandler {
-            accept: None,
-            per_page: None,
-            page: None,
-        }
+        EventHandler::new()
     }
 }
 
@@ -30,22 +20,65 @@ impl Client {
 pub struct PullsHandler {
     owner: String,
     repo: String,
+}
+
+impl PullsHandler {
+    pub fn new(owner: impl Into<String>, repo: impl Into<String>) -> PullsHandler {
+        PullsHandler {
+            owner: owner.into(),
+            repo: repo.into(),
+        }
+    }
+
+    /// List pull requests.
+    ///
+    /// See <https://docs.github.com/en/rest/reference/pulls#list-pull-requests>.
+    /// ```no_run
+    /// let pull_requests = ghrs::Client::pulls("owner", "repo").list().per_page(100).send();
+    /// ```
+    pub fn list(&self) -> ListPullRequestsBuilder {
+        ListPullRequestsBuilder::new(&self)
+    }
+
+    /// Get a pull request.
+    ///
+    /// See <https://docs.github.com/en/rest/reference/pulls#get-a-pull-request>.
+    /// ```no_run
+    /// let pull_request = ghrs::Client::pulls("owner", "repo").get(1234).send();
+    /// ```
+    pub fn get(&self, pull_number: u64) -> GetPullRequestBuilder {
+        GetPullRequestBuilder::new(&self, pull_number)
+    }
+}
+
+/// A builder for listing pull requests.
+pub struct ListPullRequestsBuilder<'a> {
+    handler: &'a PullsHandler,
     accept: Option<String>,
     per_page: Option<u8>,
     page: Option<u8>,
 }
 
-impl PullsHandler {
+impl<'a> ListPullRequestsBuilder<'a> {
+    pub fn new(handler: &'a PullsHandler) -> Self {
+        ListPullRequestsBuilder {
+            handler,
+            accept: None,
+            per_page: None,
+            page: None,
+        }
+    }
+
     /// List pull requests.
     ///
     /// See <https://docs.github.com/en/rest/reference/pulls#list-pull-requests>.
     /// ```no_run
-    /// let pull_requests = ghrs::Client::pulls("owner", "repo").list();
+    /// let pull_requests = ghrs::Client::pulls("owner", "repo").list().per_page(100).send();
     /// ```
-    pub fn list(&self) -> Result<Vec<PullRequest>, ureq::Error> {
+    pub fn send(&self) -> Result<Vec<PullRequest>, ureq::Error> {
         let mut request = ureq::get(&format!(
             "https://api.github.com/repos/{}/{}/pulls",
-            self.owner, self.repo
+            self.handler.owner, self.handler.repo
         ));
 
         if let Some(accept) = self.accept.clone() {
@@ -60,26 +93,6 @@ impl PullsHandler {
 
         let pull_requests: Vec<PullRequest> = request.call()?.into_json()?;
         Ok(pull_requests)
-    }
-
-    /// Get a pull request.
-    ///
-    /// See <https://docs.github.com/en/rest/reference/pulls#get-a-pull-request>.
-    /// ```no_run
-    /// let pull_request = ghrs::Client::pulls("owner", "repo").get(1234);
-    /// ```
-    pub fn get(&self, pull_number: u64) -> Result<PullRequest, ureq::Error> {
-        let mut request = ureq::get(&format!(
-            "https://api.github.com/repos/{}/{}/pulls/{}",
-            self.owner, self.repo, pull_number
-        ));
-
-        if let Some(accept) = self.accept.clone() {
-            request = request.set("Accept", &accept);
-        }
-
-        let pull_request: PullRequest = request.call()?.into_json()?;
-        Ok(pull_request)
     }
 
     pub fn accept(mut self, accept: impl Into<String>) -> Self {
@@ -98,26 +111,91 @@ impl PullsHandler {
     }
 }
 
+/// A builder for getting a pull request.
+pub struct GetPullRequestBuilder<'a> {
+    handler: &'a PullsHandler,
+    pull_number: u64,
+    accept: Option<String>,
+}
+
+impl<'a> GetPullRequestBuilder<'a> {
+    fn new(handler: &'a PullsHandler, pull_number: u64) -> Self {
+        GetPullRequestBuilder {
+            handler,
+            pull_number,
+            accept: None,
+        }
+    }
+
+    /// Get a pull request.
+    ///
+    /// See <https://docs.github.com/en/rest/reference/pulls#get-a-pull-request>.
+    /// ```no_run
+    /// let pull_request = ghrs::Client::pulls("owner", "repo").get(1234).send();
+    /// ```
+    pub fn send(&self) -> Result<PullRequest, ureq::Error> {
+        let mut request = ureq::get(&format!(
+            "https://api.github.com/repos/{}/{}/pulls/{}",
+            self.handler.owner, self.handler.repo, self.pull_number
+        ));
+
+        if let Some(accept) = self.accept.clone() {
+            request = request.set("Accept", &accept);
+        }
+
+        let pull_request: PullRequest = request.call()?.into_json()?;
+        Ok(pull_request)
+    }
+
+    pub fn accept(mut self, accept: impl Into<String>) -> Self {
+        self.accept = Some(accept.into());
+        self
+    }
+}
+
 /// A client for the Event API.
 ///
 /// See <https://docs.github.com/en/rest/reference/activity#events>.
-pub struct EventHandler {
+pub struct EventHandler;
+
+impl EventHandler {
+    pub fn new() -> EventHandler {
+        EventHandler {}
+    }
+
+    pub fn list_user_events(&self, user: impl Into<String>) -> ListUserEventsBuilder {
+        ListUserEventsBuilder::new(user)
+    }
+}
+
+/// A builder for listing user events
+pub struct ListUserEventsBuilder {
+    user: String,
     accept: Option<String>,
     per_page: Option<u8>,
     page: Option<u8>,
 }
 
-impl EventHandler {
+impl ListUserEventsBuilder {
+    fn new(user: impl Into<String>) -> ListUserEventsBuilder {
+        ListUserEventsBuilder {
+            user: user.into(),
+            accept: None,
+            per_page: None,
+            page: None,
+        }
+    }
+
     /// List events for the authenticated user.
     ///
     /// See <https://docs.github.com/en/rest/reference/activity#list-events-for-the-authenticated-user>.
     /// ```no_run
-    /// let events = ghrs::Client::events().list_user_events("user");
+    /// let events = ghrs::Client::events().list_user_events("user").per_page(100).send();
     /// ```
-    pub fn list_user_events(&self, user: impl Into<String>) -> Result<Vec<Event>, ureq::Error> {
+    pub fn send(&self) -> Result<Vec<Event>, ureq::Error> {
         let mut request = ureq::get(&format!(
             "https://api.github.com/users/{}/events",
-            user.into()
+            self.user
         ));
 
         if let Some(accept) = self.accept.clone() {

@@ -18,7 +18,10 @@ fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
         None
     };
 
-    let events = Client::events().per_page(100).list_user_events(user)?;
+    let events = Client::events()
+        .list_user_events(user)
+        .per_page(100)
+        .send()?;
 
     let mut issues_events = Vec::new();
     let mut pull_request_events = Vec::new();

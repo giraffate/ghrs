@@ -7,7 +7,7 @@ fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     let owner = args.get(1).unwrap();
     let repo = args.get(2).unwrap();
 
-    let pull_requests = Client::pulls(owner, repo).per_page(100).list()?;
+    let pull_requests = Client::pulls(owner, repo).list().per_page(100).send()?;
 
     let earlier_than = Utc::now() - Duration::days(14);
     let pull_requests = pull_requests
