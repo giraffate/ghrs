@@ -18,10 +18,16 @@ fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
         None
     };
 
-    let events = Client::events()
+    let mut current_page = Client::events()
         .list_user_events(user)
         .per_page(100)
         .send()?;
+    let mut events = current_page.take_items();
+
+    while let Some(next_page) = current_page.get_next_page() {
+        current_page = next_page;
+        events.extend(current_page.take_items());
+    }
 
     let mut issues_events = Vec::new();
     let mut pull_request_events = Vec::new();

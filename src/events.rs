@@ -1,4 +1,5 @@
 use crate::model::Event;
+use crate::Page;
 
 /// A client for the Event API.
 ///
@@ -39,7 +40,7 @@ impl ListUserEventsBuilder {
     /// ```no_run
     /// let events = ghrs::Client::events().list_user_events("user").per_page(100).send();
     /// ```
-    pub fn send(&self) -> Result<Vec<Event>, ureq::Error> {
+    pub fn send(&self) -> Result<Page<Event>, ureq::Error> {
         let mut request = ureq::get(&format!(
             "https://api.github.com/users/{}/events",
             self.user
@@ -55,7 +56,8 @@ impl ListUserEventsBuilder {
             request = request.query("page", &page.to_string());
         }
 
-        let user_events: Vec<Event> = request.call()?.into_json()?;
+        let response = request.call()?;
+        let user_events = Page::from_response(response)?;
         Ok(user_events)
     }
 

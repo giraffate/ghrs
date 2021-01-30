@@ -1,4 +1,5 @@
 use crate::model::PullRequest;
+use crate::Page;
 
 /// A client for the Pull Request API.
 ///
@@ -61,7 +62,7 @@ impl<'a> ListPullRequestsBuilder<'a> {
     /// ```no_run
     /// let pull_requests = ghrs::Client::pulls("owner", "repo").list().per_page(100).send();
     /// ```
-    pub fn send(&self) -> Result<Vec<PullRequest>, ureq::Error> {
+    pub fn send(&self) -> Result<Page<PullRequest>, ureq::Error> {
         let mut request = ureq::get(&format!(
             "https://api.github.com/repos/{}/{}/pulls",
             self.handler.owner, self.handler.repo
@@ -77,7 +78,8 @@ impl<'a> ListPullRequestsBuilder<'a> {
             request = request.query("page", &page.to_string());
         }
 
-        let pull_requests: Vec<PullRequest> = request.call()?.into_json()?;
+        let response = request.call()?;
+        let pull_requests = Page::from_response(response)?;
         Ok(pull_requests)
     }
 

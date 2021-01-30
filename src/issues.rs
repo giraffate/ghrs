@@ -1,4 +1,5 @@
 use crate::model::Issue;
+use crate::Page;
 
 // A client for the Issue API.
 ///
@@ -79,7 +80,7 @@ impl<'a> ListIssuesBuilder<'a> {
     /// ```no_run
     /// let issues = ghrs::Client::issues("owner", "repo").list().per_page(100).send();
     /// ```
-    pub fn send(&self) -> Result<Vec<Issue>, ureq::Error> {
+    pub fn send(&self) -> Result<Page<Issue>, ureq::Error> {
         let mut request = ureq::get(&format!(
             "https://api.github.com/repos/{}/{}/issues",
             self.handler.owner, self.handler.repo
@@ -122,7 +123,8 @@ impl<'a> ListIssuesBuilder<'a> {
             request = request.query("page", &page.to_string());
         }
 
-        let issues: Vec<Issue> = request.call()?.into_json()?;
+        let response = request.call()?;
+        let issues = Page::from_response(response)?;
         Ok(issues)
     }
 
