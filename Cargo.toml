@@ -5,10 +5,10 @@ authors = ["Takayuki Nakata <f.seasons017@gmail.com>"]
 edition = "2018"
 
 [[example]]
-name = "no_activity"
+name = "pr_triage"
 
 [[example]]
-name = "furikaeri"
+name = "make_report"
 
 [dependencies]
 ureq = { version = "2.0", features = ["json"] }
