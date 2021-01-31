@@ -3,6 +3,11 @@ name = "ghrs"
 version = "0.1.0"
 authors = ["Takayuki Nakata <f.seasons017@gmail.com>"]
 edition = "2018"
+license-file = "LICENSE"
+description = "A simple client for GitHub v3 API"
+repository = "https://github.com/giraffate/ghrs"
+readme = "README.md"
+keywords = ["github", "client"]
 
 [[example]]
 name = "pr_triage"
