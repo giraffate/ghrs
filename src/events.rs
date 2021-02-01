@@ -1,3 +1,4 @@
+//! The Event API
 use crate::model::Event;
 use crate::Page;
 

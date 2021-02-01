@@ -1,3 +1,4 @@
+//! The Pull Request API
 use crate::model::PullRequest;
 use crate::Page;
 

@@ -1,6 +1,11 @@
 # ghrs
 ghrs is a simple client for GitHub v3 API. This has a simple interface and blocking I/O, it avoids complexity unlike Async I/O, so it's so easy to use. ghrs is inspired by [Octocrab](https://github.com/XAMPPRocky/octocrab).
 
+The following modules are available now.
+- [`issues`](https://docs.rs/ghrs/latest/ghrs/issues/struct.IssuesHandler.html)
+- [`pulls`](https://docs.rs/ghrs/latest/ghrs/pulls/struct.PullsHandler.html)
+- [`events`](https://docs.rs/ghrs/latest/ghrs/events/struct.EventsHandler.html)
+
 ## Usage
 [List pull requests](https://docs.github.com/en/rest/reference/pulls#list-pull-requests).
 ```rust

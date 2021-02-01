@@ -1,3 +1,4 @@
+//! The Issue API
 use crate::model::Issue;
 use crate::Page;
 
