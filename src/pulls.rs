@@ -21,7 +21,8 @@ impl PullsHandler {
     ///
     /// See <https://docs.github.com/en/rest/reference/pulls#list-pull-requests>.
     /// ```no_run
-    /// let pull_requests = ghrs::Client::pulls("owner", "repo").list().per_page(100).send();
+    /// let client = ghrs::Client::new();
+    /// let pull_requests = client.pulls("owner", "repo").list().per_page(100).send();
     /// ```
     pub fn list(&self) -> ListPullRequestsBuilder {
         ListPullRequestsBuilder::new(&self)
@@ -31,7 +32,8 @@ impl PullsHandler {
     ///
     /// See <https://docs.github.com/en/rest/reference/pulls#get-a-pull-request>.
     /// ```no_run
-    /// let pull_request = ghrs::Client::pulls("owner", "repo").get(1234).send();
+    /// let client = ghrs::Client::new();
+    /// let pull_request = client.pulls("owner", "repo").get(1234).send();
     /// ```
     pub fn get(&self, pull_number: u64) -> GetPullRequestBuilder {
         GetPullRequestBuilder::new(&self, pull_number)
@@ -60,7 +62,8 @@ impl<'a> ListPullRequestsBuilder<'a> {
     ///
     /// See <https://docs.github.com/en/rest/reference/pulls#list-pull-requests>.
     /// ```no_run
-    /// let pull_requests = ghrs::Client::pulls("owner", "repo").list().per_page(100).send();
+    /// let client = ghrs::Client::new();
+    /// let pull_requests = client.pulls("owner", "repo").list().per_page(100).send();
     /// ```
     pub fn send(&self) -> Result<Page<PullRequest>, ureq::Error> {
         let mut request = ureq::get(&format!(
@@ -119,7 +122,8 @@ impl<'a> GetPullRequestBuilder<'a> {
     ///
     /// See <https://docs.github.com/en/rest/reference/pulls#get-a-pull-request>.
     /// ```no_run
-    /// let pull_request = ghrs::Client::pulls("owner", "repo").get(1234).send();
+    /// let client = ghrs::Client::new();
+    /// let pull_request = client.pulls("owner", "repo").get(1234).send();
     /// ```
     pub fn send(&self) -> Result<PullRequest, ureq::Error> {
         let mut request = ureq::get(&format!(

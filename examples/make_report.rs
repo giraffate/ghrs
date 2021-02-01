@@ -18,7 +18,9 @@ fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
         None
     };
 
-    let mut current_page = Client::events()
+    let client = Client::new();
+    let mut current_page = client
+        .events()
         .list_user_events(user)
         .per_page(100)
         .send()?;

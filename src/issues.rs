@@ -1,7 +1,7 @@
 use crate::model::Issue;
 use crate::Page;
 
-// A client for the Issue API.
+/// A client for the Issue API.
 ///
 /// See <https://docs.github.com/en/rest/reference/issues>.
 pub struct IssuesHandler {
@@ -21,7 +21,8 @@ impl IssuesHandler {
     ///
     /// See <https://docs.github.com/en/rest/reference/issues#list-repository-issues>.
     /// ```no_run
-    /// let issues = ghrs::Client::pulls("owner", "repo").list().per_page(100).send();
+    /// let client = ghrs::Client::new();
+    /// let issues = client.pulls("owner", "repo").list().per_page(100).send();
     /// ```
     pub fn list(&self) -> ListIssuesBuilder {
         ListIssuesBuilder::new(&self)
@@ -31,7 +32,8 @@ impl IssuesHandler {
     ///
     /// See <hhttps://docs.github.com/en/rest/reference/issues#get-an-issue>.
     /// ```no_run
-    /// let issue = ghrs::Client::issues("owner", "repo").get(1234).send();
+    /// let client = ghrs::Client::new();
+    /// let issue = client.issues("owner", "repo").get(1234).send();
     /// ```
     pub fn get(&self, issue_number: u64) -> GetIssueBuilder {
         GetIssueBuilder::new(&self, issue_number)
@@ -78,7 +80,8 @@ impl<'a> ListIssuesBuilder<'a> {
     ///
     /// See <https://docs.github.com/en/rest/reference/issues#list-repository-issues>.
     /// ```no_run
-    /// let issues = ghrs::Client::issues("owner", "repo").list().per_page(100).send();
+    /// let client = ghrs::Client::new();
+    /// let issues = client.issues("owner", "repo").list().per_page(100).send();
     /// ```
     pub fn send(&self) -> Result<Page<Issue>, ureq::Error> {
         let mut request = ureq::get(&format!(
@@ -209,7 +212,8 @@ impl<'a> GetIssueBuilder<'a> {
     ///
     /// See <https://docs.github.com/en/rest/reference/issues#get-an-issue>.
     /// ```no_run
-    /// let issue = ghrs::Client::issues("owner", "repo").get(1234).send();
+    /// let client = ghrs::Client::new();
+    /// let issue = client.issues("owner", "repo").get(1234).send();
     /// ```
     pub fn send(&self) -> Result<Issue, ureq::Error> {
         let mut request = ureq::get(&format!(

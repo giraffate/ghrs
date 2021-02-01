@@ -10,15 +10,19 @@ use crate::pulls::PullsHandler;
 pub struct Client;
 
 impl Client {
-    pub fn issues(owner: impl Into<String>, repo: impl Into<String>) -> IssuesHandler {
+    pub fn new() -> Client {
+        Client {}
+    }
+
+    pub fn issues(&self, owner: impl Into<String>, repo: impl Into<String>) -> IssuesHandler {
         IssuesHandler::new(owner, repo)
     }
 
-    pub fn pulls(owner: impl Into<String>, repo: impl Into<String>) -> PullsHandler {
+    pub fn pulls(&self, owner: impl Into<String>, repo: impl Into<String>) -> PullsHandler {
         PullsHandler::new(owner, repo)
     }
 
-    pub fn events() -> EventsHandler {
+    pub fn events(&self) -> EventsHandler {
         EventsHandler::new()
     }
 }

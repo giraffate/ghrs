@@ -5,7 +5,9 @@ ghrs is a simple client for GitHub v3 API. This has a simple interface and block
 [List pull requests](https://docs.github.com/en/rest/reference/pulls#list-pull-requests).
 ```rust
 fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
-    let mut current_page = Client::pulls("owner", "repo")
+    let client = Client::new();
+    let mut current_page = client
+        .pulls("owner", "repo")
         .list()
         .per_page(100)
         .page(1)

@@ -7,7 +7,9 @@ fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     let owner = args.get(1).unwrap();
     let repo = args.get(2).unwrap();
 
-    let mut current_page = Client::pulls(owner, repo)
+    let client = Client::new();
+    let mut current_page = client
+        .pulls(owner, repo)
         .list()
         .per_page(100)
         .page(1)

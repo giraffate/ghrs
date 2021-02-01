@@ -38,7 +38,8 @@ impl ListUserEventsBuilder {
     ///
     /// See <https://docs.github.com/en/rest/reference/activity#list-events-for-the-authenticated-user>.
     /// ```no_run
-    /// let events = ghrs::Client::events().list_user_events("user").per_page(100).send();
+    /// let client = ghrs::Client::new();
+    /// let events = client.events().list_user_events("user").per_page(100).send();
     /// ```
     pub fn send(&self) -> Result<Page<Event>, ureq::Error> {
         let mut request = ureq::get(&format!(
