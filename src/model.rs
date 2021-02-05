@@ -23,8 +23,7 @@ pub struct PullRequest {
     pub assignee: Option<User>,
     pub assignees: Vec<User>,
     pub requested_reviewers: Vec<User>,
-    // TODO
-    // pub requested_teams: ,
+    pub requested_teams: Vec<Team>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub milestone: Option<Milestone>,
     pub locked: bool,
@@ -39,10 +38,10 @@ pub struct PullRequest {
     pub merged_at: Option<DateTime<Utc>>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub merge_commit_sha: Option<String>,
-    // TODO
-    // head:,
-    // base:,
-    // links:,
+    pub head: Head,
+    pub base: Base,
+    #[serde(rename = "_links")]
+    pub links: Links,
     pub author_association: String,
     pub draft: bool,
     pub user: User,
@@ -327,4 +326,94 @@ pub struct Comment {
     pub created_at: DateTime<Utc>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub updated_at: Option<DateTime<Utc>>,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct Team {
+    pub id: u64,
+    pub node_id: String,
+    pub url: String,
+    pub html_url: String,
+    pub name: String,
+    pub slug: String,
+    pub description: String,
+    pub privacy: String,
+    pub permission: String,
+    pub members_url: String,
+    pub repositories_url: String,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct Head {
+    pub label: String,
+    #[serde(rename = "ref")]
+    pub ref_field: String,
+    pub sha: String,
+    pub user: User,
+    // TODO
+    // pub repo: Repo,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct Base {
+    pub label: String,
+    #[serde(rename = "ref")]
+    pub ref_field: String,
+    pub sha: String,
+    pub user: User,
+    // TODO
+    // pub repo: Repo,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct Links {
+    #[serde(rename = "self")]
+    pub self_link: SelfLink,
+    pub html: HtmlLink,
+    pub issue: IssueLink,
+    pub comments: CommentsLink,
+    pub review_comments: ReviewCommentsLink,
+    pub review_comment: ReviewCommentLink,
+    pub commits: CommitsLink,
+    pub statuses: StatusesLink,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct SelfLink {
+    pub href: String,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct HtmlLink {
+    pub href: String,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct IssueLink {
+    pub href: String,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct CommentsLink {
+    pub href: String,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct ReviewCommentsLink {
+    pub href: String,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct ReviewCommentLink {
+    pub href: String,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct CommitsLink {
+    pub href: String,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct StatusesLink {
+    pub href: String,
 }
