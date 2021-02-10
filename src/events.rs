@@ -1,33 +1,37 @@
 //! The Event API
 use crate::model::Event;
-use crate::Page;
+use crate::{Client, Page};
 
 /// A client for the Event API.
 ///
 /// See <https://docs.github.com/en/rest/reference/activity#events>.
-pub struct EventsHandler;
+pub struct EventsHandler<'a> {
+    client: &'a Client,
+}
 
-impl EventsHandler {
-    pub fn new() -> EventsHandler {
-        EventsHandler {}
+impl<'a> EventsHandler<'a> {
+    pub fn new(client: &'a Client) -> EventsHandler {
+        EventsHandler { client }
     }
 
     pub fn list_user_events(&self, user: impl Into<String>) -> ListUserEventsBuilder {
-        ListUserEventsBuilder::new(user)
+        ListUserEventsBuilder::new(self, user)
     }
 }
 
 /// A builder for listing user events
-pub struct ListUserEventsBuilder {
+pub struct ListUserEventsBuilder<'a> {
+    handler: &'a EventsHandler<'a>,
     user: String,
     accept: Option<String>,
     per_page: Option<u8>,
     page: Option<u8>,
 }
 
-impl ListUserEventsBuilder {
-    fn new(user: impl Into<String>) -> ListUserEventsBuilder {
+impl<'a> ListUserEventsBuilder<'a> {
+    fn new(handler: &'a EventsHandler, user: impl Into<String>) -> Self {
         ListUserEventsBuilder {
+            handler,
             user: user.into(),
             accept: None,
             per_page: None,
@@ -48,6 +52,9 @@ impl ListUserEventsBuilder {
             self.user
         ));
 
+        if let Some(token) = self.handler.client.token.clone() {
+            request = request.set("Authorization", &format!("token {}", token));
+        }
         if let Some(accept) = self.accept.clone() {
             request = request.set("Accept", &accept);
         }

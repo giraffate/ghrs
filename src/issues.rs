@@ -1,18 +1,24 @@
 //! The Issue API
 use crate::model::Issue;
-use crate::Page;
+use crate::{Client, Page};
 
 /// A client for the Issue API.
 ///
 /// See <https://docs.github.com/en/rest/reference/issues>.
-pub struct IssuesHandler {
+pub struct IssuesHandler<'a> {
+    client: &'a Client,
     owner: String,
     repo: String,
 }
 
-impl IssuesHandler {
-    pub fn new(owner: impl Into<String>, repo: impl Into<String>) -> IssuesHandler {
+impl<'a> IssuesHandler<'a> {
+    pub fn new(
+        client: &'a Client,
+        owner: impl Into<String>,
+        repo: impl Into<String>,
+    ) -> IssuesHandler {
         IssuesHandler {
+            client,
             owner: owner.into(),
             repo: repo.into(),
         }
@@ -43,7 +49,7 @@ impl IssuesHandler {
 
 /// A builder for listing issues.
 pub struct ListIssuesBuilder<'a> {
-    handler: &'a IssuesHandler,
+    handler: &'a IssuesHandler<'a>,
     accept: Option<String>,
     milestone: Option<String>,
     state: Option<String>,
@@ -90,6 +96,9 @@ impl<'a> ListIssuesBuilder<'a> {
             self.handler.owner, self.handler.repo
         ));
 
+        if let Some(token) = self.handler.client.token.clone() {
+            request = request.set("Authorization", &format!("token {}", token));
+        }
         if let Some(accept) = self.accept.clone() {
             request = request.set("Accept", &accept);
         }
@@ -195,7 +204,7 @@ impl<'a> ListIssuesBuilder<'a> {
 
 /// A builder for getting an issue.
 pub struct GetIssueBuilder<'a> {
-    handler: &'a IssuesHandler,
+    handler: &'a IssuesHandler<'a>,
     issue_number: u64,
     accept: Option<String>,
 }
@@ -222,6 +231,9 @@ impl<'a> GetIssueBuilder<'a> {
             self.handler.owner, self.handler.repo, self.issue_number
         ));
 
+        if let Some(token) = self.handler.client.token.clone() {
+            request = request.set("Authorization", &format!("token {}", token));
+        }
         if let Some(accept) = self.accept.clone() {
             request = request.set("Accept", &accept);
         }

@@ -1,18 +1,24 @@
 //! The Pull Request API
 use crate::model::PullRequest;
-use crate::Page;
+use crate::{Client, Page};
 
 /// A client for the Pull Request API.
 ///
 /// See <https://docs.github.com/en/rest/reference/pulls>.
-pub struct PullsHandler {
+pub struct PullsHandler<'a> {
+    client: &'a Client,
     owner: String,
     repo: String,
 }
 
-impl PullsHandler {
-    pub fn new(owner: impl Into<String>, repo: impl Into<String>) -> PullsHandler {
+impl<'a> PullsHandler<'a> {
+    pub fn new(
+        client: &'a Client,
+        owner: impl Into<String>,
+        repo: impl Into<String>,
+    ) -> PullsHandler {
         PullsHandler {
+            client,
             owner: owner.into(),
             repo: repo.into(),
         }
@@ -43,7 +49,7 @@ impl PullsHandler {
 
 /// A builder for listing pull requests.
 pub struct ListPullRequestsBuilder<'a> {
-    handler: &'a PullsHandler,
+    handler: &'a PullsHandler<'a>,
     accept: Option<String>,
     per_page: Option<u8>,
     page: Option<u8>,
@@ -72,6 +78,9 @@ impl<'a> ListPullRequestsBuilder<'a> {
             self.handler.owner, self.handler.repo
         ));
 
+        if let Some(token) = self.handler.client.token.clone() {
+            request = request.set("Authorization", &format!("token {}", token));
+        }
         if let Some(accept) = self.accept.clone() {
             request = request.set("Accept", &accept);
         }
@@ -105,7 +114,7 @@ impl<'a> ListPullRequestsBuilder<'a> {
 
 /// A builder for getting a pull request.
 pub struct GetPullRequestBuilder<'a> {
-    handler: &'a PullsHandler,
+    handler: &'a PullsHandler<'a>,
     pull_number: u64,
     accept: Option<String>,
 }
@@ -132,6 +141,9 @@ impl<'a> GetPullRequestBuilder<'a> {
             self.handler.owner, self.handler.repo, self.pull_number
         ));
 
+        if let Some(token) = self.handler.client.token.clone() {
+            request = request.set("Authorization", &format!("token {}", token));
+        }
         if let Some(accept) = self.accept.clone() {
             request = request.set("Accept", &accept);
         }

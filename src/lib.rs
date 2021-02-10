@@ -12,27 +12,40 @@ use crate::issues::IssuesHandler;
 use crate::pulls::PullsHandler;
 
 /// A client for GitHub v3 API.
-pub struct Client;
+pub struct Client {
+    token: Option<String>,
+}
 
 impl Client {
     /// Create a `Client`.
     pub fn new() -> Client {
-        Client {}
+        Client { token: None }
+    }
+
+    /// Set a personal access token.
+    ///
+    /// ```no_run
+    /// let client = ghrs::Client::new();
+    /// let issues = client.token("your_token").issues("owner", "repo").list().send();
+    /// ```
+    pub fn token(mut self, token: impl Into<String>) -> Self {
+        self.token = Some(token.into());
+        self
     }
 
     /// Create a [`issues::IssuesHandler`].
     pub fn issues(&self, owner: impl Into<String>, repo: impl Into<String>) -> IssuesHandler {
-        IssuesHandler::new(owner, repo)
+        IssuesHandler::new(self, owner, repo)
     }
 
     /// Create a [`pulls::PullsHandler`].
     pub fn pulls(&self, owner: impl Into<String>, repo: impl Into<String>) -> PullsHandler {
-        PullsHandler::new(owner, repo)
+        PullsHandler::new(self, owner, repo)
     }
 
     /// Create a [`events::EventsHandler`].
     pub fn events(&self) -> EventsHandler {
-        EventsHandler::new()
+        EventsHandler::new(self)
     }
 }
 
