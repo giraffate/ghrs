@@ -1,6 +1,6 @@
 [package]
 name = "ghrs"
-version = "0.1.1"
+version = "0.1.2"
 authors = ["Takayuki Nakata <f.seasons017@gmail.com>"]
 edition = "2018"
 license = "MIT"
