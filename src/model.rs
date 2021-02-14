@@ -1,7 +1,7 @@
 use chrono::{DateTime, Utc};
-use serde::{de::Error, Deserialize, Deserializer};
+use serde::{de::Error, Deserialize, Deserializer, Serialize};
 
-#[derive(Debug, Deserialize)]
+#[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct PullRequest {
     pub id: u64,
     pub url: String,
@@ -47,7 +47,7 @@ pub struct PullRequest {
     pub user: User,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct User {
     pub login: String,
     pub id: i64,
@@ -69,7 +69,7 @@ pub struct User {
     pub site_admin: bool,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct Milestone {
     pub url: String,
     pub html_url: String,
@@ -92,7 +92,7 @@ pub struct Milestone {
     pub due_on: Option<DateTime<Utc>>,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct Label {
     pub id: i64,
     pub node_id: String,
@@ -104,7 +104,7 @@ pub struct Label {
     pub default: bool,
 }
 
-#[derive(Debug)]
+#[derive(Clone, Debug, Serialize)]
 pub struct Event {
     pub id: String,
     pub r#type: EventType,
@@ -179,7 +179,7 @@ fn deserialize_payload(
     Ok(payload)
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Clone, Debug, Deserialize, Serialize)]
 pub enum EventType {
     IssuesEvent,
     PullRequestEvent,
@@ -190,7 +190,7 @@ pub enum EventType {
     UnknownEvent,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Clone, Debug, Deserialize, Serialize)]
 pub enum Payload {
     IssuesEventPayload(IssuesEventPayload),
     PullRequestEventPayload(PullRequestEventPayload),
@@ -199,7 +199,7 @@ pub enum Payload {
     CommitCommentEventPayload(CommitCommentEventPayload),
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct IssuesEventPayload {
     pub action: String,
     pub issue: Issue,
@@ -210,7 +210,7 @@ pub struct IssuesEventPayload {
     pub label: Option<Label>,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct PullRequestEventPayload {
     pub action: String,
     pub number: u64,
@@ -218,7 +218,7 @@ pub struct PullRequestEventPayload {
     pub pull_request: PullRequest,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct PullRequestReviewCommentEventPayload {
     pub action: String,
     // pub changes: Changes,
@@ -226,7 +226,7 @@ pub struct PullRequestReviewCommentEventPayload {
     pub comment: Comment,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct IssueCommentEventPayload {
     pub action: String,
     // pub changes: Changes,
@@ -234,20 +234,20 @@ pub struct IssueCommentEventPayload {
     pub comment: Comment,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct CommitCommentEventPayload {
     pub action: String,
     pub comment: Comment,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct Repository {
     pub id: u64,
     pub name: String,
     pub url: String,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct Actor {
     pub id: u64,
     pub login: String,
@@ -256,7 +256,7 @@ pub struct Actor {
     pub url: String,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct Org {
     pub id: u64,
     pub login: String,
@@ -265,7 +265,7 @@ pub struct Org {
     pub url: String,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct Issue {
     pub id: i64,
     pub node_id: String,
@@ -302,7 +302,7 @@ pub struct Issue {
     pub author_association: String,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct PullRequestLink {
     pub url: String,
     pub html_url: String,
@@ -310,7 +310,7 @@ pub struct PullRequestLink {
     pub patch_url: String,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct Comment {
     pub id: u64,
     pub node_id: String,
@@ -328,7 +328,7 @@ pub struct Comment {
     pub updated_at: Option<DateTime<Utc>>,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct Team {
     pub id: u64,
     pub node_id: String,
@@ -343,7 +343,7 @@ pub struct Team {
     pub repositories_url: String,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct Head {
     pub label: String,
     #[serde(rename = "ref")]
@@ -354,7 +354,7 @@ pub struct Head {
     // pub repo: Repo,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct Base {
     pub label: String,
     #[serde(rename = "ref")]
@@ -365,7 +365,7 @@ pub struct Base {
     // pub repo: Repo,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct Links {
     #[serde(rename = "self")]
     pub self_link: SelfLink,
@@ -378,42 +378,42 @@ pub struct Links {
     pub statuses: StatusesLink,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct SelfLink {
     pub href: String,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct HtmlLink {
     pub href: String,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct IssueLink {
     pub href: String,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct CommentsLink {
     pub href: String,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct ReviewCommentsLink {
     pub href: String,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct ReviewCommentLink {
     pub href: String,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct CommitsLink {
     pub href: String,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct StatusesLink {
     pub href: String,
 }
