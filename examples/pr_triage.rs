@@ -11,6 +11,8 @@ fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     let mut current_page = client
         .pulls(owner, repo)
         .list()
+        .sort("updated")
+        .direction("desc")
         .per_page(100)
         .page(1)
         .send()?;

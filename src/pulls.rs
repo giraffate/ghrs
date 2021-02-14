@@ -51,6 +51,11 @@ impl<'a> PullsHandler<'a> {
 pub struct ListPullRequestsBuilder<'a> {
     handler: &'a PullsHandler<'a>,
     accept: Option<String>,
+    state: Option<String>,
+    head: Option<String>,
+    base: Option<String>,
+    sort: Option<String>,
+    direction: Option<String>,
     per_page: Option<u8>,
     page: Option<u8>,
 }
@@ -60,6 +65,11 @@ impl<'a> ListPullRequestsBuilder<'a> {
         ListPullRequestsBuilder {
             handler,
             accept: None,
+            state: None,
+            head: None,
+            base: None,
+            sort: None,
+            direction: None,
             per_page: None,
             page: None,
         }
@@ -84,6 +94,21 @@ impl<'a> ListPullRequestsBuilder<'a> {
         if let Some(accept) = self.accept.clone() {
             request = request.set("Accept", &accept);
         }
+        if let Some(state) = self.state.clone() {
+            request = request.query("state", &state);
+        }
+        if let Some(head) = self.head.clone() {
+            request = request.query("head", &head);
+        }
+        if let Some(base) = self.base.clone() {
+            request = request.query("base", &base);
+        }
+        if let Some(sort) = self.sort.clone() {
+            request = request.query("sort", &sort);
+        }
+        if let Some(direction) = self.direction.clone() {
+            request = request.query("direction", &direction);
+        }
         if let Some(per_page) = self.per_page {
             request = request.query("per_page", &per_page.to_string());
         }
@@ -98,6 +123,31 @@ impl<'a> ListPullRequestsBuilder<'a> {
 
     pub fn accept(mut self, accept: impl Into<String>) -> Self {
         self.accept = Some(accept.into());
+        self
+    }
+
+    pub fn state(mut self, state: impl Into<String>) -> Self {
+        self.state = Some(state.into());
+        self
+    }
+
+    pub fn head(mut self, head: impl Into<String>) -> Self {
+        self.head = Some(head.into());
+        self
+    }
+
+    pub fn base(mut self, base: impl Into<String>) -> Self {
+        self.base = Some(base.into());
+        self
+    }
+
+    pub fn sort(mut self, sort: impl Into<String>) -> Self {
+        self.sort = Some(sort.into());
+        self
+    }
+
+    pub fn direction(mut self, direction: impl Into<String>) -> Self {
+        self.direction = Some(direction.into());
         self
     }
 
