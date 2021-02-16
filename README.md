@@ -31,6 +31,19 @@ fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
 }
 ```
 
+### GitHub Enterprise
+If you use `ghrs` for GitHub Enterprise, set `base_url`.
+```rust
+// GET `https://github.your_company.com/api/v3/repos/owner/repo/issues`
+let client = ghrs::Client::new();
+let mut current_page = client
+    .base_url("https://github.your_company.com/api/v3")
+    .token("your_token")
+    .issues("owner", "repo")
+    .list()
+    .send()?;
+```
+
 ## Contributing
 ## License
 [MIT license](LICENSE)

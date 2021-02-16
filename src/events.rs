@@ -48,8 +48,8 @@ impl<'a> ListUserEventsBuilder<'a> {
     /// ```
     pub fn send(&self) -> Result<Page<Event>, ureq::Error> {
         let mut request = ureq::get(&format!(
-            "https://api.github.com/users/{}/events",
-            self.user
+            "{}/users/{}/events",
+            self.handler.client.base_url, self.user
         ));
 
         if let Some(token) = self.handler.client.token.clone() {

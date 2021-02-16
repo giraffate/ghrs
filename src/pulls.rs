@@ -84,8 +84,8 @@ impl<'a> ListPullRequestsBuilder<'a> {
     /// ```
     pub fn send(&self) -> Result<Page<PullRequest>, ureq::Error> {
         let mut request = ureq::get(&format!(
-            "https://api.github.com/repos/{}/{}/pulls",
-            self.handler.owner, self.handler.repo
+            "{}/repos/{}/{}/pulls",
+            self.handler.client.base_url, self.handler.owner, self.handler.repo
         ));
 
         if let Some(token) = self.handler.client.token.clone() {
@@ -187,8 +187,8 @@ impl<'a> GetPullRequestBuilder<'a> {
     /// ```
     pub fn send(&self) -> Result<PullRequest, ureq::Error> {
         let mut request = ureq::get(&format!(
-            "https://api.github.com/repos/{}/{}/pulls/{}",
-            self.handler.owner, self.handler.repo, self.pull_number
+            "{}/repos/{}/{}/pulls/{}",
+            self.handler.client.base_url, self.handler.owner, self.handler.repo, self.pull_number
         ));
 
         if let Some(token) = self.handler.client.token.clone() {

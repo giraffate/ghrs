@@ -16,6 +16,9 @@ name = "pr_triage"
 [[example]]
 name = "make_report"
 
+[[example]]
+name = "github_enterprise"
+
 [dependencies]
 ureq = { version = "2.0", features = ["json"] }
 serde = { version = "1.0", features = ["derive"] }

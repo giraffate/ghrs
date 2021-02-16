@@ -92,8 +92,8 @@ impl<'a> ListIssuesBuilder<'a> {
     /// ```
     pub fn send(&self) -> Result<Page<Issue>, ureq::Error> {
         let mut request = ureq::get(&format!(
-            "https://api.github.com/repos/{}/{}/issues",
-            self.handler.owner, self.handler.repo
+            "{}/repos/{}/{}/issues",
+            self.handler.client.base_url, self.handler.owner, self.handler.repo
         ));
 
         if let Some(token) = self.handler.client.token.clone() {
@@ -227,8 +227,8 @@ impl<'a> GetIssueBuilder<'a> {
     /// ```
     pub fn send(&self) -> Result<Issue, ureq::Error> {
         let mut request = ureq::get(&format!(
-            "https://api.github.com/repos/{}/{}/issues/{}",
-            self.handler.owner, self.handler.repo, self.issue_number
+            "{}/repos/{}/{}/issues/{}",
+            self.handler.client.base_url, self.handler.owner, self.handler.repo, self.issue_number
         ));
 
         if let Some(token) = self.handler.client.token.clone() {

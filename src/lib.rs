@@ -11,15 +11,21 @@ use crate::events::EventsHandler;
 use crate::issues::IssuesHandler;
 use crate::pulls::PullsHandler;
 
+const GITHUB_API_URL: &str = "https://api.github.com";
+
 /// A client for GitHub v3 API.
 pub struct Client {
+    base_url: String,
     token: Option<String>,
 }
 
 impl Client {
     /// Create a `Client`.
     pub fn new() -> Client {
-        Client { token: None }
+        Client {
+            token: None,
+            base_url: GITHUB_API_URL.to_string(),
+        }
     }
 
     /// Set a personal access token.
@@ -30,6 +36,17 @@ impl Client {
     /// ```
     pub fn token(mut self, token: impl Into<String>) -> Self {
         self.token = Some(token.into());
+        self
+    }
+
+    /// Set a base URL.
+    ///
+    /// ```no_run
+    /// let client = ghrs::Client::new();
+    /// let issues = client.base_url("https://github.your_company.com/api/v3").token("your_token").issues("owner", "repo").list().send();
+    /// ```
+    pub fn base_url(mut self, base_url: impl Into<String>) -> Self {
+        self.base_url = base_url.into();
         self
     }
 
