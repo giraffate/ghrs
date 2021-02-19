@@ -1,5 +1,5 @@
 //! The Event API
-use crate::model::Event;
+use crate::model::event::Event;
 use crate::{Client, Page};
 
 /// A client for the Event API.

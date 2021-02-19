@@ -1,5 +1,7 @@
+pub mod event;
+
 use chrono::{DateTime, Utc};
-use serde::{de::Error, Deserialize, Deserializer, Serialize};
+use serde::{Deserialize, Serialize};
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct PullRequest {
@@ -104,167 +106,6 @@ pub struct Label {
     pub default: bool,
 }
 
-#[derive(Clone, Debug, Serialize)]
-pub struct Event {
-    pub id: String,
-    pub r#type: EventType,
-    pub actor: Actor,
-    pub repo: Repository,
-    pub public: bool,
-    pub created_at: DateTime<Utc>,
-    pub payload: Option<Payload>,
-    pub org: Option<Org>,
-}
-
-impl<'de> Deserialize<'de> for Event {
-    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
-    where
-        D: Deserializer<'de>,
-    {
-        #[derive(Deserialize)]
-        struct Tmp {
-            id: String,
-            r#type: EventType,
-            actor: Actor,
-            repo: Repository,
-            public: bool,
-            created_at: DateTime<Utc>,
-            payload: Option<serde_json::Value>,
-            org: Option<Org>,
-        }
-        let tmp = Tmp::deserialize(deserializer)?;
-        let payload = tmp.payload.clone().map_or(Ok(None), |data| {
-            deserialize_payload(&tmp.r#type, data).map_err(|e| Error::custom(e.to_string()))
-        })?;
-        let event = Event {
-            id: tmp.id,
-            r#type: tmp.r#type,
-            actor: tmp.actor,
-            repo: tmp.repo,
-            public: tmp.public,
-            created_at: tmp.created_at,
-            payload,
-            org: tmp.org,
-        };
-        Ok(event)
-    }
-}
-
-fn deserialize_payload(
-    event_type: &EventType,
-    data: serde_json::Value,
-) -> Result<Option<Payload>, serde_json::Error> {
-    let payload = match event_type {
-        EventType::IssuesEvent => Some(
-            serde_json::from_value::<IssuesEventPayload>(data).map(Payload::IssuesEventPayload)?,
-        ),
-        EventType::PullRequestEvent => Some(
-            serde_json::from_value::<PullRequestEventPayload>(data)
-                .map(Payload::PullRequestEventPayload)?,
-        ),
-        EventType::PullRequestReviewCommentEvent => Some(
-            serde_json::from_value::<PullRequestReviewCommentEventPayload>(data)
-                .map(Payload::PullRequestReviewCommentEventPayload)?,
-        ),
-        EventType::IssueCommentEvent => Some(
-            serde_json::from_value::<IssueCommentEventPayload>(data)
-                .map(Payload::IssueCommentEventPayload)?,
-        ),
-        EventType::CommitCommentEvent => Some(
-            serde_json::from_value::<CommitCommentEventPayload>(data)
-                .map(Payload::CommitCommentEventPayload)?,
-        ),
-        _ => None,
-    };
-    Ok(payload)
-}
-
-#[derive(Clone, Debug, Deserialize, Serialize)]
-pub enum EventType {
-    IssuesEvent,
-    PullRequestEvent,
-    PullRequestReviewCommentEvent,
-    IssueCommentEvent,
-    CommitCommentEvent,
-    #[serde(other)]
-    UnknownEvent,
-}
-
-#[derive(Clone, Debug, Deserialize, Serialize)]
-pub enum Payload {
-    IssuesEventPayload(IssuesEventPayload),
-    PullRequestEventPayload(PullRequestEventPayload),
-    PullRequestReviewCommentEventPayload(PullRequestReviewCommentEventPayload),
-    IssueCommentEventPayload(IssueCommentEventPayload),
-    CommitCommentEventPayload(CommitCommentEventPayload),
-}
-
-#[derive(Clone, Debug, Deserialize, Serialize)]
-pub struct IssuesEventPayload {
-    pub action: String,
-    pub issue: Issue,
-    // pub changes: Changes,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub assignee: Option<User>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub label: Option<Label>,
-}
-
-#[derive(Clone, Debug, Deserialize, Serialize)]
-pub struct PullRequestEventPayload {
-    pub action: String,
-    pub number: u64,
-    // pub changes: Changes,
-    pub pull_request: PullRequest,
-}
-
-#[derive(Clone, Debug, Deserialize, Serialize)]
-pub struct PullRequestReviewCommentEventPayload {
-    pub action: String,
-    // pub changes: Changes,
-    pub pull_request: PullRequest,
-    pub comment: Comment,
-}
-
-#[derive(Clone, Debug, Deserialize, Serialize)]
-pub struct IssueCommentEventPayload {
-    pub action: String,
-    // pub changes: Changes,
-    pub issue: Issue,
-    pub comment: Comment,
-}
-
-#[derive(Clone, Debug, Deserialize, Serialize)]
-pub struct CommitCommentEventPayload {
-    pub action: String,
-    pub comment: Comment,
-}
-
-#[derive(Clone, Debug, Deserialize, Serialize)]
-pub struct Repository {
-    pub id: u64,
-    pub name: String,
-    pub url: String,
-}
-
-#[derive(Clone, Debug, Deserialize, Serialize)]
-pub struct Actor {
-    pub id: u64,
-    pub login: String,
-    pub gravatar_id: String,
-    pub avatar_url: String,
-    pub url: String,
-}
-
-#[derive(Clone, Debug, Deserialize, Serialize)]
-pub struct Org {
-    pub id: u64,
-    pub login: String,
-    pub gravatar_id: String,
-    pub avatar_url: String,
-    pub url: String,
-}
-
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct Issue {
     pub id: i64,
@@ -297,8 +138,6 @@ pub struct Issue {
     pub created_at: DateTime<Utc>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub updated_at: Option<DateTime<Utc>>,
-    // TODO
-    // pub repository: Repository,
     pub author_association: String,
 }
 
@@ -350,8 +189,7 @@ pub struct Head {
     pub ref_field: String,
     pub sha: String,
     pub user: User,
-    // TODO
-    // pub repo: Repo,
+    pub repo: Repository,
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
@@ -361,8 +199,7 @@ pub struct Base {
     pub ref_field: String,
     pub sha: String,
     pub user: User,
-    // TODO
-    // pub repo: Repo,
+    pub repo: Repository,
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
@@ -416,4 +253,127 @@ pub struct CommitsLink {
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct StatusesLink {
     pub href: String,
+}
+
+#[derive(Clone, Debug, Deserialize, Serialize)]
+pub struct Repository {
+    pub id: u64,
+    pub node_id: String,
+    pub name: String,
+    pub full_name: String,
+    pub owner: User,
+    pub private: bool,
+    pub html_url: String,
+    pub description: String,
+    pub fork: bool,
+    pub url: String,
+    pub archive_url: String,
+    pub assignees_url: String,
+    pub blobs_url: String,
+    pub branches_url: String,
+    pub collaborators_url: String,
+    pub comments_url: String,
+    pub commits_url: String,
+    pub compare_url: String,
+    pub contents_url: String,
+    pub contributors_url: String,
+    pub deployments_url: String,
+    pub downloads_url: String,
+    pub events_url: String,
+    pub forks_url: String,
+    pub git_commits_url: String,
+    pub git_refs_url: String,
+    pub git_tags_url: String,
+    pub git_url: String,
+    pub issue_comment_url: String,
+    pub issue_events_url: String,
+    pub issues_url: String,
+    pub keys_url: String,
+    pub labels_url: String,
+    pub languages_url: String,
+    pub merges_url: String,
+    pub milestones_url: String,
+    pub notifications_url: String,
+    pub pulls_url: String,
+    pub releases_url: String,
+    pub ssh_url: String,
+    pub stargazers_url: String,
+    pub statuses_url: String,
+    pub subscribers_url: String,
+    pub subscription_url: String,
+    pub tags_url: String,
+    pub teams_url: String,
+    pub trees_url: String,
+    pub clone_url: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub mirror_url: Option<String>,
+    pub hooks_url: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub svn_url: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub homepage: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub language: Option<String>,
+    pub forks_count: u64,
+    pub stargazers_count: u64,
+    pub watchers_count: u64,
+    pub size: u64,
+    pub default_branch: String,
+    pub open_issues_count: u64,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub is_template: Option<bool>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub topics: Option<Vec<String>>,
+    pub has_issues: bool,
+    pub has_projects: bool,
+    pub has_wiki: bool,
+    pub has_pages: bool,
+    pub has_downloads: bool,
+    pub archived: bool,
+    pub disabled: bool,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub visibility: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub pushed_at: Option<DateTime<Utc>>,
+    pub created_at: DateTime<Utc>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub updated_at: Option<DateTime<Utc>>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub permissions: Option<Permissions>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub allow_rebase_merge: Option<bool>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub template_repository: Option<Box<Repository>>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub allow_squash_merge: Option<bool>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub allow_merge_commit: Option<bool>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub subscribers_count: Option<u64>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub network_count: Option<u64>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub license: Option<License>,
+    pub forks: u64,
+    pub open_issues: u64,
+    pub watchers: u64,
+}
+
+#[derive(Clone, Debug, Deserialize, Serialize)]
+pub struct Permissions {
+    admin: bool,
+    push: bool,
+    pull: bool,
+}
+
+#[derive(Clone, Debug, Deserialize, Serialize)]
+pub struct License {
+    pub key: String,
+    pub name: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub url: Option<String>,
+    pub node_id: String,
+    pub spdx_id: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub html_url: Option<String>,
 }
