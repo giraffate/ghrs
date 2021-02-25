@@ -1,4 +1,4 @@
-use ghrs::{model::EventType, model::Payload, Client};
+use ghrs::{model::event::EventType, model::event::Payload, Client};
 
 use chrono::NaiveDate;
 
