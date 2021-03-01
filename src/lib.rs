@@ -19,6 +19,12 @@ pub struct Client {
     token: Option<String>,
 }
 
+impl Default for Client {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl Client {
     /// Create a `Client`.
     pub fn new() -> Client {
