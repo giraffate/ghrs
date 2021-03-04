@@ -1,19 +1,30 @@
-name: Rust
+name: CI
 
 on:
   push:
-  pull_request:
 
 env:
   CARGO_TERM_COLOR: always
 
 jobs:
-  build:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        rust: [nightly, stable]
+    steps:
+    - uses: actions/checkout@v2
+    - name: Build
+      run: cargo check --verbose
+    - name: Run tests
+      run: cargo test --verbose --workspace
+
+  clippy:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
     - name: Build
-      run: cargo build --verbose
-    - name: Run tests
-      run: cargo test --verbose
+      run: |
+        rustup component add clippy
+        cargo clippy --workspace -- -D clippy::all
 
